@@ -1,6 +1,6 @@
 
 
-datafileName = 'Instances_USILS/Instance60.1.txt'
+datafileName = 'Instances_ULS/Toy_Instance.txt'
 
 with open(datafileName, "r") as file:
     line = file.readline()  
@@ -36,28 +36,28 @@ print("cfixes: ",cfixes)
 print("cstock: ",cstock)
 
 
-
-
 from mip import *
 import time
 
 model = Model(name = "ULS", solver_name="CBC")
 # variable binaire valant 1 si on produit pendant la période i, et 0 sinon
-y = [model.add_var(name="y(" + str(i) + ")", lb=0, ub=1, var_type=BINARY) for i in range(nbPeriodes)]
+y = [model.add_var(name="y(" + str(i) + ")", lb=0, ub=1, var_type=BINARY) for i in range(nbPeriodes+1)]
 
 # quantité produite dans le mois
-x = [model.add_var(name="x(" + str(i) + ")", lb=0, var_type=INTEGER) for i in range(demandes)]
+x = [model.add_var(name="x(" + str(i) + ")", lb=0, var_type=INTEGER) for i in range(nbPeriodes+1)]
 
 # quantité stockée a la fin du mois
-s = [model.add_var(name="s(" + str(i) + ")", lb=0, var_type=INTEGER) for i in range(cstock)]
+s = [model.add_var(name="s(" + str(i) + ")", lb=0, var_type=INTEGER) for i in range(nbPeriodes+1)]
 
+model.objective = minimize(xsum(x[i+1]*couts[i] + cfixes[i]*y[i+1] + cstock*s[i+1] for i in range(nbPeriodes)))
 
+for i in range(nbPeriodes):
+    model.add_constr(s[0] == 0)
+    model.add_constr(x[i+1] <= y[i+1]*sum(demandes[j] for j in range(i,nbPeriodes)))
+    model.add_constr(x[i+1] + s[i] >= demandes[i])
+    model.add_constr(s[i+1] == x[i+1] + s[i] - demandes[i])
 
-
-
-
-
-#model.write("test.lp")
+model.write("test.lp")
 
 status = model.optimize()
 
@@ -77,5 +77,6 @@ if model.num_solutions>0:
     print("Solution calculée")
     print("-> Valeur de la fonction objectif de la solution calculée : ",  model.objective_value)
 
-    print("\n \t Implémentez l'affichage de la solution !")
-
+    print("Prod, Besoin, Stock, Bool, Coût\n")
+    for i in range(nbPeriodes):
+        print(x[i+1].x, demandes[i], s[i+1].x, y[i+1].x, couts[i], "\n")
