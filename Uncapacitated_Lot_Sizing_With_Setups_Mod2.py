@@ -1,5 +1,5 @@
 
-datafileName = 'Instances_USILS/Instance120.1.txt'
+datafileName = 'Instances_ULS/Instance21.1.txt'
 
 with open(datafileName, "r") as file:
     line = file.readline()  
@@ -40,15 +40,26 @@ import time
 
 model2 = Model(name = "ULS", solver_name="CBC")
 
-y = 
-x = 
+y = [model2.add_var(name="y(" + str(i) + ")", lb=0, ub=1, var_type=BINARY) for i in range(nbPeriodes)]
+x = [[model2.add_var(name="x(" + str(i) + str(j) +")", lb=0, var_type=BINARY) for j in range(nbPeriodes)] for i in range(nbPeriodes)]
+
+model2.objective = minimize(xsum((xsum(couts[i]*x[i][j]*demandes[j] for j in range(nbPeriodes)) + cfixes[i]*y[i]) for i in range(nbPeriodes)))
+
+for i in range(nbPeriodes):
+    model2.add_constr(sum(x[i][j] for j in range(nbPeriodes)) <= nbPeriodes - sum(sum(x[k][j] for j in range(nbPeriodes)) for k in range(i)))
+
+for j in range(nbPeriodes):
+    model2.add_constr(sum(x[i][j] for i in range(nbPeriodes)) == 1)
+    for i in range(nbPeriodes):
+        model2.add_constr(x[i][j] <= y[i])
+        if (i>j):
+            model2.add_constr(x[i][j] == 0)       
+        
 
 
 
 
-
-
-#model2.write("test.lp")
+model2.write("test.lp")
 
 status = model2.optimize()
 
@@ -68,5 +79,11 @@ if model2.num_solutions>0:
     print("Solution calculée")
     print("-> Valeur de la fonction objectif de la solution calculée : ",  model2.objective_value)
 
-    print("\n \t Implémentez l'affichage de la solution !")
+    print("Prod, Besoin, Bool, Coût\n")
+    for i in range(nbPeriodes):
+        print([x[i][j].x for j in range(nbPeriodes)])
+
+    print("Besoin,Bool, Coût\n")
+    for i in range(nbPeriodes):
+        print(demandes[i], y[i].x, couts[i], "\n")
 
