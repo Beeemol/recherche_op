@@ -2,7 +2,7 @@
 Modélisation 1
 
 min    sum(i in [1-n])(ci*xi+yi*fi+si*h)
-    pout tout i: xi <= yi * M
+    pour tout i: xi <= yi * M
     M = sum[j=mois_courant,n](dj)
 
     pour tout i: xi + old(si) >= di
@@ -16,6 +16,8 @@ min    sum(i in [1-n])(ci*xi+yi*fi+si*h)
 Modélisation 2
 
 min    sum(i in [1-n])(ci*xi + fi*yi + si*h)
+    pour tout i: xi <= yi * M
+    M = sum[j=mois_courant,n](dj)
     pour tout j de 1 à n: sum(i in [1, n])(xij) = 1
     xi = sum(i in [1-n])(xij*dj)
     si = xi - di*xij + s(i-1)
