@@ -43,7 +43,7 @@ model2 = Model(name = "ULS", solver_name="CBC")
 y = [model2.add_var(name="y(" + str(i) + ")", lb=0, ub=1, var_type=BINARY) for i in range(nbPeriodes)]
 x = [[model2.add_var(name="x(" + str(i) + str(j) +")", lb=0, var_type=BINARY) for j in range(nbPeriodes)] for i in range(nbPeriodes)]
 
-model2.objective = minimize(xsum(couts[i] * y[i] + cfixes[i] * x[i][j] + cstock * x[i][j] for i in range(nbPeriodes) for j in range(nbPeriodes)))
+model2.objective = minimize(xsum((xsum(couts[i]*x[i][j]*demandes[j] for j in range(nbPeriodes)) + cfixes[i]*y[i]) for i in range(nbPeriodes)))
 
 for i in range(nbPeriodes):
     model2.add_constr(sum(x[i][j] for j in range(nbPeriodes)) <= nbPeriodes - sum(sum(x[k][j] for j in range(nbPeriodes)) for k in range(i)))
