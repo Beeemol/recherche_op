@@ -51,11 +51,11 @@ s = [model.add_var(name="s(" + str(i) + ")", lb=0, var_type=INTEGER) for i in ra
 
 model.objective = minimize(xsum(x[i+1]*couts[i] + cfixes[i]*y[i+1] + cstock*s[i+1] for i in range(nbPeriodes)))
 
-for i in range(1,nbPeriodes+1):
+for i in range(nbPeriodes):
     model.add_constr(s[0] == 0)
-    model.add_constr(x[i] <= y[i]*sum(demandes[j-1] for j in range(i,nbPeriodes+1)))
-    model.add_constr(x[i] + s[i-1] >= demandes[i-1])
-    model.add_constr(s[i] == x[i] + s[i-1] - demandes[i-1])
+    model.add_constr(x[i+1] <= y[i+1]*sum(demandes[j] for j in range(i,nbPeriodes)))
+    model.add_constr(x[i+1] + s[i] >= demandes[i])
+    model.add_constr(s[i+1] == x[i+1] + s[i] - demandes[i])
 
 model.write("test.lp")
 
@@ -78,5 +78,5 @@ if model.num_solutions>0:
     print("-> Valeur de la fonction objectif de la solution calculée : ",  model.objective_value)
 
     print("Prod, Besoin, Stock, Bool, Coût\n")
-    for i in range(1,nbPeriodes+1):
-        print(x[i].x, demandes[i-1], s[i].x, y[i].x, couts[i-1], "\n")
+    for i in range(nbPeriodes):
+        print(x[i+1].x, demandes[i], s[i+1].x, y[i+1].x, couts[i], "\n")
