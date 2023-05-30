@@ -5,8 +5,8 @@ min    sum(i in [1-n])(ci*xi+yi*fi+si*h)
     pout tout i: xi <= yi * M
     M = sum[j=mois_courant,n](dj)
 
-    pour tout i: xi + old(si) >= di
-    pour tout i: si = xi + old(si) - di
+    pour tout i: xi + s[i-1] >= di
+    pour tout i: si == xi + s[i-1] - di
     pour tout i: xi,si>=0 et N, yi booleen 
 
 
