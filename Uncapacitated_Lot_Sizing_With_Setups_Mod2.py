@@ -80,7 +80,7 @@ if model2.num_solutions>0:
     print("Solution calculée")
     print("-> Valeur de la fonction objectif de la solution calculée : ",  model2.objective_value)
 
-    print("Prod, Besoin, Bool, Coût\n")
+    print("Prod\n")
     for i in range(nbPeriodes):
         print([x[i][j].x for j in range(nbPeriodes)])
 
