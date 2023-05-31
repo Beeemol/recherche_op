@@ -1,5 +1,5 @@
 
-datafileName = 'Instances_ULS/Instance21.1.txt'
+datafileName = 'Instances_ULS/Toy_Instance.txt'
 
 with open(datafileName, "r") as file:
     line = file.readline()  
@@ -44,13 +44,9 @@ y = [model2.add_var(name="y(" + str(i) + ")", lb=0, ub=1, var_type=BINARY) for i
 
 x = [[model2.add_var(name="x(" + str(i) + str(j) +")", lb=0, ub=1, var_type=BINARY) for j in range(nbPeriodes)] for i in range(nbPeriodes)]
 
-# quantité stockée a la fin du mois
-s = [model2.add_var(name="s(" + str(i) + ")", lb=0, var_type=INTEGER) for i in range(nbPeriodes+1)]
-
-model2.objective = minimize(xsum((xsum(couts[i]*x[i][j]*demandes[j] for j in range(nbPeriodes)) + cfixes[i]*y[i] + cstock*s[i]) for i in range(nbPeriodes)))
+model2.objective = minimize(xsum((xsum((couts[i] + cstock*(j-i))*x[i][j]*demandes[j] for j in range(nbPeriodes)) + cfixes[i]*y[i]) for i in range(nbPeriodes)))
 
 for i in range(nbPeriodes):
-    model2.add_constr(s[i] == xsum(x[i][j]*demandes[j] for j in range(nbPeriodes)) + s[i-1] - demandes[i])
     model2.add_constr(xsum(x[i][j] for j in range(nbPeriodes)) <= nbPeriodes - xsum(xsum(x[k][j] for j in range(nbPeriodes)) for k in range(i)))
 
 for j in range(nbPeriodes):
